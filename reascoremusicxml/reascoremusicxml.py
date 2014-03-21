@@ -15,7 +15,7 @@ from reaper_python import *
 from Tkinter import *
 import Tkinter
 
-#from music21 import *
+from music21 import stream
 
 
 def msg(m) :
@@ -43,11 +43,11 @@ def GetTrackName(trackId):
     
     
 def Generate():
-    #stream1 = stream.Stream()
+    stream1 = stream.Stream()
     TrackList = getSelectedTracksIdList()
     GetTrackName(TrackList[0])
     
-    #stream1.show('musicxml') 
+    stream1.show('musicxml') 
     #sBach = corpus.parse('bach/bwv7.7')
     #sBach.show()
     #RPR_Main_OnCommand(40007,0)
