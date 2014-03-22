@@ -15,7 +15,7 @@ from reaper_python import *
 from Tkinter import *
 import Tkinter
 
-from music21 import stream
+from music21 import stream, metadata, note, clef
 
 
 def msg(m) :
@@ -43,14 +43,34 @@ def GetTrackName(trackId):
     
     
 def Generate():
-    stream1 = stream.Stream()
-    TrackList = getSelectedTracksIdList()
-    GetTrackName(TrackList[0])
+    s1 = stream.Score()
+    s1.metadata = metadata.Metadata()
+    s1.metadata.composer = 'Mike'
+    s1.metadata.title='Reaper Symphony'
+    s1.metadata.popularTitle='Silent Death'
+    s1.metadata.date = '2014'
     
-    stream1.show('musicxml') 
-    #sBach = corpus.parse('bach/bwv7.7')
-    #sBach.show()
-    #RPR_Main_OnCommand(40007,0)
+    #TODO: Loop over tracks
+    p1 = stream.Part()
+    p1.id = 'myBass'
+
+    #TrackList = getSelectedTracksIdList()
+    #GetTrackName(TrackList[0])
+    
+    n1 = note.Note('g3', type='half')
+    n2 = note.Note('d4', type='half')
+    
+    cf1 = clef.AltoClef()
+    
+    m1 = stream.Measure(number=1)
+    m1.append([n1, n2])
+    m1.insert(0, cf1)
+   
+    p1.append(m1)
+    s1.append(p1)
+    
+    #s1.show('musicxml') 
+    s1.show('text')
 
 
 
