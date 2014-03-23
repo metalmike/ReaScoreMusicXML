@@ -43,6 +43,10 @@ def GetTrackName(trackId):
     
     
 def Generate():
+    rpr_chunk = ""
+    rpr_chunkLists = []
+    rpr_track_ItemIdL = []    
+    
     s1 = stream.Score()
     s1.metadata = metadata.Metadata()
     s1.metadata.composer = 'Mike'
@@ -54,8 +58,16 @@ def Generate():
     p1 = stream.Part()
     p1.id = 'myBass'
 
-    #TrackList = getSelectedTracksIdList()
-    #GetTrackName(TrackList[0])
+    rpr_trackList = getSelectedTracksIdList()
+    GetTrackName(rpr_trackList[0])
+    rpr_itemsInTrack = RPR_CountTrackMediaItems(rpr_trackList[0])
+    msg(rpr_itemsInTrack)
+    
+    rpr_track_ItemId = RPR_GetTrackMediaItem(rpr_trackList[0], 0)
+    rpr_track_ItemIdL.append(rpr_track_ItemId)
+    
+    rpr_chunk = RPR_GetSetItemState2(rpr_track_ItemId, "", 1024*1024*4, 1)[2]
+    rpr_chunkLists.append(list(rpr_chunk.split("\n")))
     
     n1 = note.Note('g3', type='half')
     n2 = note.Note('d4', type='half')
@@ -69,8 +81,8 @@ def Generate():
     p1.append(m1)
     s1.append(p1)
     
-    #s1.show('musicxml') 
-    s1.show('text')
+    s1.show('musicxml') 
+    #s1.show('text')
 
 
 
