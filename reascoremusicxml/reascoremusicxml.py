@@ -66,8 +66,16 @@ def Generate():
     rpr_track_ItemId = RPR_GetTrackMediaItem(rpr_trackList[0], 0)
     rpr_track_ItemIdL.append(rpr_track_ItemId)
     
+    #rpr_chunk_test = RPR_GetSetItemState2(rpr_track_ItemId, "", 1024*1024*4, 1)
     rpr_chunk = RPR_GetSetItemState2(rpr_track_ItemId, "", 1024*1024*4, 1)[2]
     rpr_chunkLists.append(list(rpr_chunk.split("\n")))
+    
+    #i = ""
+    for rpr_chunk_part in rpr_chunk.split("\n"):
+        if rpr_chunk_part.startswith("E "):
+            msg(rpr_chunk_part)
+    
+    
     
     n1 = note.Note('g3', type='half')
     n2 = note.Note('d4', type='half')
@@ -81,7 +89,7 @@ def Generate():
     p1.append(m1)
     s1.append(p1)
     
-    s1.show('musicxml') 
+    #s1.show('musicxml') 
     #s1.show('text')
 
 
