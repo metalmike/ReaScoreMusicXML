@@ -15,7 +15,7 @@ from reaper_python import *
 from Tkinter import *
 import Tkinter
 
-from music21 import stream, metadata, note, clef
+from music21 import stream, metadata, note, clef, midi
 
 
 def msg(m) :
@@ -40,7 +40,7 @@ def GetTrackName(trackId):
     currentName = str(RPR_GetSetMediaTrackInfo_String(trackId, "P_NAME", "", 0)[3])
     msg(currentName)
     return currentName
-    
+
     
 def Generate():
     rpr_chunk = ""
@@ -66,13 +66,20 @@ def Generate():
     rpr_track_ItemId = RPR_GetTrackMediaItem(rpr_trackList[0], 0)
     rpr_track_ItemIdL.append(rpr_track_ItemId)
     
-    #rpr_chunk_test = RPR_GetSetItemState2(rpr_track_ItemId, "", 1024*1024*4, 1)
     rpr_chunk = RPR_GetSetItemState2(rpr_track_ItemId, "", 1024*1024*4, 1)[2]
     rpr_chunkLists.append(list(rpr_chunk.split("\n")))
+    #msg(rpr_chunk)
+
+    #midiStream = stream.Stream()
+    #midi.translate.midiStringToStream("", midiStream)
     
-    #i = ""
     for rpr_chunk_part in rpr_chunk.split("\n"):
-        if rpr_chunk_part.startswith("E "):
+        if rpr_chunk_part.startswith("HASDATA "):
+            ticksPerQuarterNote = rpr_chunk_part.split(" ")[2]
+            msg(ticksPerQuarterNote)
+            
+        if rpr_chunk_part.startswith("E ")  or rpr_chunk_part.startswith("e "):
+            #midiStream.append(others)
             msg(rpr_chunk_part)
     
     
@@ -80,11 +87,11 @@ def Generate():
     n1 = note.Note('g3', type='half')
     n2 = note.Note('d4', type='half')
     
-    cf1 = clef.AltoClef()
+    #cf1 = clef.AltoClef()
     
     m1 = stream.Measure(number=1)
     m1.append([n1, n2])
-    m1.insert(0, cf1)
+    #m1.insert(0, cf1)
    
     p1.append(m1)
     s1.append(p1)
