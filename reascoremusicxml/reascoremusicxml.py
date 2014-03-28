@@ -11,6 +11,7 @@ sys.argv=["Main"]
 from reaper_python import *
 #from sws_python import *
 #import re
+#from ctypes import *
 
 from Tkinter import *
 import Tkinter
@@ -72,8 +73,10 @@ def chunk_parser(chunkLists):
                 else:
                     raise("Different ticksPerQuarterNote in chunks! - Not supported!")
                 
-            if rpr_chunk_part.startswith("E ")  or rpr_chunk_part.startswith("e "):
-                midiEventListRaw.append(rpr_chunk_part.split(" ")[1:])
+            rpr_chunk_part = rpr_chunk_part.lower()
+            if rpr_chunk_part.startswith("e "):
+                midiEventListRaw.append(rpr_chunk_part.lstrip("e "))
+                
     return ticksPerQuarterNote, midiEventListRaw
         
         
