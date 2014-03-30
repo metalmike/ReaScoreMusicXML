@@ -111,6 +111,13 @@ def Generate():
     msg(ticksPerQuarterNote)
     msg(midiEventListRaw)
     
+    midiTrack = []
+    midiTrack.append(midiEventListRaw)
+  
+    midiBinStr = midiAsciiStringToBinaryString(tracksEventsList = midiTrack)
+    s = stream.Stream()
+    s = midiStringToStream(midiBinStr, s)
+
     
     n1 = note.Note('g3', type='half')
     n2 = note.Note('d4', type='half')
@@ -121,7 +128,7 @@ def Generate():
     m1.append([n1, n2])
     #m1.insert(0, cf1)
    
-    p1.append(m1)
+    p1.append([m1, s])
     s1.append(p1)
     
     #s1.show('musicxml') 
