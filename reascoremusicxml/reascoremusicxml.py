@@ -24,6 +24,15 @@ def msg(m) :
     RPR_ShowConsoleMsg(s)
 
 
+def get_curr_project_filename():
+    proj = RPR_EnumProjects(-1, "", 512)
+    if proj[2] == "":
+        msg("Unsaved project")
+    else:
+        msg(proj[2])
+        return (proj[2])
+    
+
 def getSelectedTracksIdList():
     'Returns a list of the selected Tracks'
     trackIdL = []
@@ -86,7 +95,10 @@ def Generate():
     s1 = stream.Score()
     s1.metadata = metadata.Metadata()
     s1.metadata.composer = 'Mike'
-    s1.metadata.title='Reaper Symphony'
+    
+    projectFilename = get_curr_project_filename()
+    s1.metadata.title = projectFilename.split(".")[0].split('\\')[-1]
+    
     s1.metadata.popularTitle='Silent Death'
     s1.metadata.date = '2014'
     
