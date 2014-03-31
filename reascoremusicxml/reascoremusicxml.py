@@ -16,7 +16,7 @@ from reaper_python import *
 from Tkinter import *
 import Tkinter
 
-from music21 import stream, metadata, note, clef, midi
+from music21 import stream, metadata, midi
 
 
 def msg(m) :
@@ -28,14 +28,15 @@ def getSelectedTracksIdList():
     'Returns a list of the selected Tracks'
     trackIdL = []
     selTrackCount = RPR_CountSelectedTracks(0)
-
+    
     if selTrackCount == 0:
 ##        msg("Select tracks first")
         return 0
     for i in range(selTrackCount):
         trackId = RPR_GetSelectedTrack(0, i)
         trackIdL.append(trackId)
-        return trackIdL
+    
+    return trackIdL
 
 
 def getTrackItemsIdList(trackId):
@@ -81,8 +82,6 @@ def chunk_parser(chunkLists):
         
         
 def Generate():
-    rpr_chunk = ""
-    rpr_chunkLists = []
     
     s1 = stream.Score()
     s1.metadata = metadata.Metadata()
@@ -91,48 +90,36 @@ def Generate():
     s1.metadata.popularTitle='Silent Death'
     s1.metadata.date = '2014'
     
-    #TODO: Loop over tracks
-    p1 = stream.Part()
-    p1.id = 'myBass'
-
     rpr_trackList = getSelectedTracksIdList()
-    GetTrackName(rpr_trackList[0])
     
-    rpr_track_ItemIdL = getTrackItemsIdList(rpr_trackList[0])
-    for rpr_track_ItemId in rpr_track_ItemIdL:
-        rpr_chunk = RPR_GetSetItemState2(rpr_track_ItemId, "", 1024*1024*4, 1)[2]
-        rpr_chunkLists.append(list(rpr_chunk.split("\n")))
- 
-    #midiStream = stream.Part()
-    #midi.translate.midiStringToStream("", midiStream)
-    
-    ticksPerQuarterNote, midiEventListRaw = chunk_parser(rpr_chunkLists)    
+    for track in rpr_trackList:
+        rpr_chunk = ""
+        rpr_chunkLists = []
+        ScorePart = stream.Part()
 
-    msg(ticksPerQuarterNote)
-    msg(midiEventListRaw)
+        GetTrackName(track)
+        ScorePart.id = 'myBass'
+        
+        rpr_track_ItemIdL = getTrackItemsIdList(track)
+        for rpr_track_ItemId in rpr_track_ItemIdL:
+            rpr_chunk = RPR_GetSetItemState2(rpr_track_ItemId, "", 1024*1024*4, 1)[2]
+            rpr_chunkLists.append(list(rpr_chunk.split("\n")))
+         
+        ticksPerQuarterNote, midiEventListRaw = chunk_parser(rpr_chunkLists)    
     
-    midiTrack = []
-    midiTrack.append(midiEventListRaw)
-  
-    midiBinStr = midiAsciiStringToBinaryString(tracksEventsList = midiTrack)
-    s = stream.Stream()
-    s = midiStringToStream(midiBinStr, s)
-
+        msg(ticksPerQuarterNote)
+        msg(midiEventListRaw)
+        
+        midiTrack = []
+        midiTrack.append(midiEventListRaw)
+      
+        midiBinStr = midi.translate.midiAsciiStringToBinaryString(tracksEventsList = midiTrack)
+        ScorePart = midi.translate.midiStringToStream(midiBinStr, ScorePart)
+        
+        s1.append(ScorePart)
     
-    n1 = note.Note('g3', type='half')
-    n2 = note.Note('d4', type='half')
-    
-    #cf1 = clef.AltoClef()
-    
-    m1 = stream.Measure(number=1)
-    m1.append([n1, n2])
-    #m1.insert(0, cf1)
-   
-    p1.append([m1, s])
-    s1.append(p1)
-    
-    #s1.show('musicxml') 
-    #s1.show('text')
+    s1.show('musicxml') 
+    s1.show('text')
 
 
 
