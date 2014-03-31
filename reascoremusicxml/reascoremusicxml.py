@@ -116,10 +116,11 @@ def Generate():
         midiBinStr = midi.translate.midiAsciiStringToBinaryString(tracksEventsList = midiTrack)
         ScorePart = midi.translate.midiStringToStream(midiBinStr, ScorePart)
         
-        s1.append(ScorePart)
+        s1.insert(0, ScorePart)
+        
     
     s1.show('musicxml') 
-    s1.show('text')
+    #s1.show('text')
 
 
 
@@ -130,7 +131,7 @@ root.resizable(0, 0)
 root.minsize(width=300, height=100)
 
 var1 = IntVar()
-Checkbutton(root, text="Tabulature", variable=var1).grid(row=1, sticky=W)
+#Checkbutton(root, text="Tabulature", variable=var1).grid(row=1, sticky=W)
 
 #var2 = IntVar()
 #Checkbutton(root, text="Remove Source Item (Move)", variable=var2).grid(row=2, sticky=W)
