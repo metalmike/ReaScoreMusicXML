@@ -31,7 +31,10 @@ def get_curr_project_filename():
     else:
         msg(proj[2])
         return (proj[2])
-    
+
+def get_numTempoTimeSigMarker(): 
+    return RPR_CountTempoTimeSigMarkers(-1)
+
 
 def getSelectedTracksIdList():
     'Returns a list of the selected Tracks'
@@ -67,6 +70,15 @@ def GetTrackName(trackId):
     currentName = str(RPR_GetSetMediaTrackInfo_String(trackId, "P_NAME", "", 0)[3])
     msg(currentName)
     return currentName
+
+
+def getProjectBeat():
+    temp = RPR_TimeMap2_timeToBeats(-1, 0, 0, 0, 0, 0)
+    msg('RPR_TimeMap2_timeToBeats: ' + str(temp))
+    '''e.g. for 6/8 and 130bpm: RPR_TimeMap2_timeToBeats: (1e-11, -1, 0, 0, 6, 0.0, 8)'''
+    beatNumerator = temp[4]
+    beatDenumerator = temp [6]
+    return beatNumerator, beatDenumerator 
 
 
 def chunk_parser(chunkLists):
@@ -150,6 +162,33 @@ def Generate():
     
     s1.metadata.popularTitle='Silent Death'
     s1.metadata.date = '2014'
+    
+    #TODO: extract this in seperate methos and return a list!
+    numTempoTimeSigMarker = get_numTempoTimeSigMarker()
+    msg('numTempoTimeSigMarker: ' + str(numTempoTimeSigMarker))
+
+    if (numTempoTimeSigMarker != 0):
+        for marker in range(numTempoTimeSigMarker): 
+            #(Boolean retval, ReaProject* proj, Int ptidx, Float timeposOut, Int measureposOut, Float beatposOut, Float bpmOut, Int timesig_numOut, Int timesig_denomOut, Boolean lineartempoOut) = RPR_GetTempoTimeSigMarker(proj, ptidx, timeposOut, measureposOut, beatposOut, bpmOut, timesig_numOut, timesig_denomOut, lineartempoOut)
+            temp =  RPR_GetTempoTimeSigMarker(0, marker, 0, 0, 0, 0, 0, 0, 0)
+            msg('MarkerArray: ' + str(temp))
+
+
+    '''
+    Python: (ReaProject* proj, Float bpmOut, Float bpiOut) = RPR_GetProjectTimeSignature2(proj, bpmOut, bpiOut)
+    
+    Gets basic time signature (beats per minute, numerator of time signature in bpi)
+    this does not reflect tempo envelopes but is purely what is set in the project settings.
+    e.g. for 6/8 and 130bpm: RPR_GetProjectTimeSignature2: (-1, 260.0, 6.0)'''
+    temp =  RPR_GetProjectTimeSignature2(-1, 0, 0)
+    msg('RPR_GetProjectTimeSignature2: ' + str(temp))
+    
+
+    rprProjBeatNumerator, rprProjBeatDenumerator = getProjectBeat()
+    msg('ProjectBeat: %s' % rprProjBeatNumerator + '/%s' % rprProjBeatDenumerator)
+    #TODO: set Beat in music21
+    
+    #TODO: extract tempo from reaper project and set it in music21    
     
     rpr_trackList = getSelectedTracksIdList()
     
