@@ -52,7 +52,7 @@ def getTrackItemsIdList(trackId):
     'Returns a list of the items in a track'
     itemIdL = []
     trackItemCount = RPR_CountTrackMediaItems(trackId)
-    msg(trackItemCount)
+    #msg(trackItemCount)
  
     if trackItemCount == 0:
         msg("No item(s) in track\n")
@@ -73,11 +73,49 @@ def chunk_parser(chunkLists):
     midiEventListRaw = []
     ticksPerQuarterNote = None
 
+    chunk_pos = float(0)
+    chunk_lenght = float(0)
+    markerActual = float(0)
+
     for i, rpr_chunk in enumerate(chunkLists):
+        
         for j, rpr_chunk_part in enumerate(rpr_chunk):
+            
+            if rpr_chunk_part.startswith("POSITION "):
+                chunk_pos = float(rpr_chunk_part.split(" ")[1])
+                msg('Chunk pos:' + str(chunk_pos))
+                
+                #retval = float(RPR_TimeMap2_beatsToTime(-1, chunk_pos, 0)[0])
+                #msg('RPR_TimeMap2_beatsToTime:' + str(retval))
+                
+                #DividedBpmAtTime = RPR_TimeMap_GetDividedBpmAtTime(chunk_pos)
+                #msg('RPR_TimeMap_GetDividedBpmAtTime:' + str(DividedBpmAtTime))
+                deltaTime = float(0)
+                if (chunk_pos > markerActual):
+                    deltaTime = chunk_pos - markerActual
+                    msg('deltaTime:' + str(deltaTime))
+                    
+                    TimetoBeats = float(RPR_TimeMap2_timeToBeats(-1, deltaTime,0,0,0,0)[0])
+                    """convert a time into beats.
+                    if measures is non-NULL, measures will be set to the measure count, return value will be beats since measure.
+                    if cml is non-NULL, will be set to current measure length in beats (i.e. time signature numerator)
+                    if fullbeats is non-NULL, and measures is non-NULL, fullbeats will get the full beat count (same value returned if measures is NULL).
+                    if cdenom is non-NULL, will be set to the current time signature denominator.
+                    double TimeMap2_timeToBeats(ReaProject* proj, double tpos, int* measures, int* cml, double* fullbeats, int* cdenom)"""
+                    
+                    msg('RPR_TimeMap2_timeToBeats:' + str(int(TimetoBeats)))
+                    #midiEventListRaw.append(TimetoBeats*ticksPerQuarterNote'')
+                
+                
+            if rpr_chunk_part.startswith("LENGTH "):
+                chunk_lenght = float(rpr_chunk_part.split(" ")[1])
+                msg('Chunk len:' + str(chunk_lenght))
+
             if rpr_chunk_part.startswith("HASDATA "):
                 if (ticksPerQuarterNote == None):
                     ticksPerQuarterNote = rpr_chunk_part.split(" ")[2]
+                    if (deltaTime != 0) :
+                        midiEventListRaw.append(str(int(TimetoBeats)*int(ticksPerQuarterNote)) + ' 80 31 0')
                 elif (ticksPerQuarterNote == rpr_chunk_part.split(" ")[2]):
                     pass
                 else:
@@ -86,6 +124,9 @@ def chunk_parser(chunkLists):
             rpr_chunk_part = rpr_chunk_part.lower()
             if rpr_chunk_part.startswith("e "):
                 midiEventListRaw.append(rpr_chunk_part.lstrip("e "))
+                
+        markerActual = chunk_pos + chunk_lenght
+        msg('markerActual:' + str(markerActual))
                 
     return ticksPerQuarterNote, midiEventListRaw
         
@@ -115,6 +156,7 @@ def Generate():
         rpr_track_ItemIdL = getTrackItemsIdList(track)
         for rpr_track_ItemId in rpr_track_ItemIdL:
             rpr_chunk = RPR_GetSetItemState2(rpr_track_ItemId, "", 1024*1024*4, 1)[2]
+            #msg(rpr_chunk)
             rpr_chunkLists.append(list(rpr_chunk.split("\n")))
          
         ticksPerQuarterNote, midiEventListRaw = chunk_parser(rpr_chunkLists)    
