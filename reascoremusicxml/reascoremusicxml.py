@@ -16,7 +16,7 @@ from reaper_python import *
 from Tkinter import *
 import Tkinter
 
-from music21 import stream, metadata, midi
+from music21 import stream, metadata, midi, meter
 
 
 def msg(m) :
@@ -186,7 +186,9 @@ def Generate():
 
     rprProjBeatNumerator, rprProjBeatDenumerator = getProjectBeat()
     msg('ProjectBeat: %s' % rprProjBeatNumerator + '/%s' % rprProjBeatDenumerator)
-    #TODO: set Beat in music21
+    scoreBeats = meter.TimeSignature('%s' % rprProjBeatNumerator + '/%s' % rprProjBeatDenumerator)
+    s1.insert(0, scoreBeats)
+    
     
     #TODO: extract tempo from reaper project and set it in music21    
     
