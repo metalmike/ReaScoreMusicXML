@@ -16,7 +16,8 @@ from reaper_python import *
 from Tkinter import *
 import Tkinter
 
-from music21 import stream, metadata, midi, meter
+from music21 import stream, metadata, midi, meter, tempo, note
+#from music21 import *
 
 
 def msg(m) :
@@ -97,11 +98,6 @@ def chunk_parser(chunkLists):
                 chunk_pos = float(rpr_chunk_part.split(" ")[1])
                 msg('Chunk pos:' + str(chunk_pos))
                 
-                #retval = float(RPR_TimeMap2_beatsToTime(-1, chunk_pos, 0)[0])
-                #msg('RPR_TimeMap2_beatsToTime:' + str(retval))
-                
-                #DividedBpmAtTime = RPR_TimeMap_GetDividedBpmAtTime(chunk_pos)
-                #msg('RPR_TimeMap_GetDividedBpmAtTime:' + str(DividedBpmAtTime))
                 deltaTime = float(0)
                 if (chunk_pos > markerActual):
                     deltaTime = chunk_pos - markerActual
@@ -180,8 +176,15 @@ def Generate():
     Gets basic time signature (beats per minute, numerator of time signature in bpi)
     this does not reflect tempo envelopes but is purely what is set in the project settings.
     e.g. for 6/8 and 130bpm: RPR_GetProjectTimeSignature2: (-1, 260.0, 6.0)'''
-    temp =  RPR_GetProjectTimeSignature2(-1, 0, 0)
-    msg('RPR_GetProjectTimeSignature2: ' + str(temp))
+    #temp =  RPR_GetProjectTimeSignature2(-1, 0, 0)
+    #msg('RPR_GetProjectTimeSignature2: ' + str(temp))
+    
+
+    #retval = float(RPR_TimeMap2_beatsToTime(-1, 0, 0)[0])
+    #msg('RPR_TimeMap2_beatsToTime:' + str(retval))
+    
+    DividedBpmAtTime = RPR_TimeMap_GetDividedBpmAtTime(0)
+    msg('RPR_TimeMap_GetDividedBpmAtTime: ' + str(DividedBpmAtTime))
     
 
     rprProjBeatNumerator, rprProjBeatDenumerator = getProjectBeat()
@@ -189,6 +192,14 @@ def Generate():
     scoreBeats = meter.TimeSignature('%s' % rprProjBeatNumerator + '/%s' % rprProjBeatDenumerator)
     s1.insert(0, scoreBeats)
     
+    projectTempo = DividedBpmAtTime * 4 / int(rprProjBeatDenumerator)
+    msg('projectTempo: ' + str(projectTempo))
+    metro = tempo.MetronomeMark(number = projectTempo)
+    #metro.setContextAttr(attrName, value)
+    #d = Direction()
+    #d.set('placement', 'above')
+
+    #d.append(metro)
     
     #TODO: extract tempo from reaper project and set it in music21    
     
@@ -219,6 +230,8 @@ def Generate():
         midiBinStr = midi.translate.midiAsciiStringToBinaryString(tracksEventsList = midiTrack)
         ScorePart = midi.translate.midiStringToStream(midiBinStr, ScorePart)
         
+        ScorePart.insert(0, metro)
+
         s1.insert(0, ScorePart)
         
     
@@ -226,7 +239,7 @@ def Generate():
     #s1.show('text')
 
 
-
+#TODO: Better GUI
 root = Tkinter.Tk()
 
 root.title('ReaScoreMusicXML')
@@ -243,5 +256,6 @@ Button(root, text ="Generate", command = Generate).place(bordermode=INSIDE, heig
 
 root.mainloop()
 
+#TODO: Unittests
 if __name__ == '__main__':
     pass
