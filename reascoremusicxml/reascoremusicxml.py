@@ -16,9 +16,10 @@ from reaper_python import *
 from Tkinter import *
 import Tkinter
 
-from music21 import stream, metadata, midi, meter, tempo, note
-#from music21 import *
 
+from music21 import stream, metadata, midi, meter, tempo
+#from music21 import *
+    
 
 def msg(m) :
     s = str(m) + '\n'
@@ -149,6 +150,7 @@ def chunk_parser(chunkLists):
         
 def Generate():
     
+    #s1 = extractedScore
     s1 = stream.Score()
     s1.metadata = metadata.Metadata()
     s1.metadata.composer = 'Mike'
@@ -233,29 +235,62 @@ def Generate():
         ScorePart.insert(0, metro)
 
         s1.insert(0, ScorePart)
-        
     
-    s1.show('musicxml') 
-    #s1.show('text')
+    return s1
 
 
-#TODO: Better GUI
-root = Tkinter.Tk()
+class GUIApplication:
+    
+    def __init__(self, root):
+        self.root = root
+        
+        self.frame = Frame(self.root)
+        self.frame.pack()
+        
+        self.root.title('ReaScoreMusicXML')
+        self.root.resizable(0, 0)
+        self.root.minsize(width=300, height=100)
+        self.root.attributes('-topmost', 1)
+        
+        self.extractedData = None
+        
+        self.buildGUI()
+        
+        
+    def buildGUI(self):
+        self.var1 = IntVar()
+        self.extractCheckBox = Checkbutton(self.frame, text="Extract data from Project", variable=self.var1)
+        self.extractCheckBox.select()
+        
+        self.var2 = IntVar()
+        self.processCheckBox = Checkbutton(self.frame, text="Export extracted data to MusicXML", variable=self.var2)^
+        self.processCheckBox.select()
+        
+        self.extractCheckBox.pack()
+        self.processCheckBox.pack()
+        
+        #self.quitButton = Button(self.frame, text="QUIT", fg="red", command=self.root.quit)       
+        self.genButton = Button(self.frame, text ="Generate", command = self.process)
 
-root.title('ReaScoreMusicXML')
-root.resizable(0, 0)
-root.minsize(width=300, height=100)
+        #self.quitButton.pack(side = LEFT)
+        self.genButton.pack()
+        
+            
+    def exportData(self):
+        self.extractedData.show()
+        
+            
+    def process(self): 
+        if (self.var1.get() == 1):
+            self.extractedData = Generate()
+            
+        if (self.var2.get() == 1):
+            self.exportData()
 
-var1 = IntVar()
-#Checkbutton(root, text="Tabulature", variable=var1).grid(row=1, sticky=W)
 
-#var2 = IntVar()
-#Checkbutton(root, text="Remove Source Item (Move)", variable=var2).grid(row=2, sticky=W)
-
-Button(root, text ="Generate", command = Generate).place(bordermode=INSIDE, height=25, width=60, x=135, y=55)
-
-root.mainloop()
 
 #TODO: Unittests
 if __name__ == '__main__':
-    pass
+    root = Tk()
+    app = GUIApplication(root)
+    root.mainloop()
